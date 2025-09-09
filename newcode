@@ -1,0 +1,1004 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MODAK - Dropdown Selected Values</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Same as before — no changes here */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @font-face {
+            font-family: 'Inconsolata';
+            src: url('https://fonts.gstatic.com/s/inconsolata/v21/cKt5IfOjsCZHynsUPIPiBw.woff2') format('woff2'),
+                 url('https://fonts.gstatic.com/s/inconsolata/v21/cKt5IfOjsCZHynsUPIPiBw.woff') format('woff');
+            font-weight: 275 900;
+            font-stretch: 50% 200%;
+            font-style: normal;
+        }
+        body {
+            background: radial-gradient(white, #ff9e80);
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            -webkit-font-smoothing: antialiased;
+            font-size: clamp(4px, 2vw, 36px);
+            overflow-x: hidden;
+            position: relative;
+            height: 100vh;
+            color: gray;
+        }
+        .waviy {
+            position: absolute;
+            top: 50%;
+            left: 15%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .waviy span {
+            position: relative;
+            display: inline-block;
+            font-size: 120px;
+            color: #fff;
+            text-transform: uppercase;
+            font-weight: bold;
+            animation: flip 2s infinite;
+            text-shadow: 0 40px 20px rgba(0, 0, 0, 0.9);
+            animation-delay: calc(.2s * var(--i));
+        }
+        @keyframes flip {
+            0%, 80% { transform: rotateY(360deg); }
+        }
+        .light {
+            position: absolute;
+            width: 0px;
+            opacity: .75;
+            background-color: white;
+            box-shadow: #e9f1f1 0px 0px 20px 2px;
+            opacity: 0;
+            top: 100vh;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            margin: auto;
+        }
+        .x1,.x2,.x3,.x4,.x5,.x6,.x7,.x8,.x9 {
+            position: absolute;
+            width: 0px;
+            opacity: 0;
+            background-color: white;
+            box-shadow: #e9f1f1 0px 0px 5px 1px;
+            top: 100vh;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+        .x1 { animation: floatUp 4s infinite linear; transform: scale(1.0); }
+        .x2 { animation: floatUp 7s infinite linear; transform: scale(1.6); left: 15%; }
+        .x3 { animation: floatUp 2.5s infinite linear; transform: scale(0.5); left: -15%; }
+        .x4 { animation: floatUp 4.5s infinite linear; transform: scale(1.2); left: -34%; }
+        .x5 { animation: floatUp 8s infinite linear; transform: scale(2.2); left: -57%; }
+        .x6 { animation: floatUp 3s infinite linear; transform: scale(0.8); left: -81%; }
+        .x7 { animation: floatUp 5.3s infinite linear; transform: scale(3.2); left: 37%; }
+        .x8 { animation: floatUp 4.7s infinite linear; transform: scale(1.7); left: 62%; }
+        .x9 { animation: floatUp 4.1s infinite linear; transform: scale(0.9); left: 85%; }
+        @keyframes floatUp {
+            0% { top: 100vh; opacity: 0; }
+            25% { opacity: 1; }
+            50% { top: 0vh; opacity: .8; }
+            75% { opacity: 1; }
+            100% { top: -100vh; opacity: 0; }
+        }
+        .main-content {
+            position: relative;
+            z-index: 10;
+        }
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .image-wrapper {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+        .image-wrapper:nth-child(1) { z-index: 4; right: -85%; }
+        .image-wrapper:nth-child(2) { z-index: 3; right: -68%; }
+        .image-wrapper:nth-child(3) { z-index: 2; right: -51%; }
+        .image-wrapper:nth-child(4) { z-index: 1; right: -33%; }
+        .curved-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 100px 0 0 100px;
+        }
+        .image-wrapper:hover {
+            transform: translateX(-2%);
+        }
+        .icon-overlay {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            transform: translateY(-50%);
+            z-index: 5;
+        }
+        .icon-overlay img {
+            width: 200px;
+            max-width: 90%;
+            opacity: 0.9;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+            filter: drop-shadow(25px 50px 4px rgba(0, 0, 0, 0.4));
+        }
+        .icon-overlay img:hover {
+            opacity: 1;
+            transform: scale(1.5);
+        }
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        /* Mobile styles - vertical stacking */
+        @media (max-width: 768px) {
+            .waviy {
+                top: 10%;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .waviy span {
+                font-size: 60px;
+            }
+            
+            .image-container {
+                flex-direction: column;
+                height: 100vh;
+                justify-content: flex-end;
+                align-items: stretch;
+                padding: 0;
+            }
+            
+            .image-wrapper {
+                position: relative;
+                width: 100%;
+                height: 40vh;
+                right: 0 !important;
+                top: auto;
+                transition: transform 0.3s ease;
+            }
+            
+            /* Vertical stacking from bottom to top */
+            .image-wrapper:nth-child(1) { 
+                z-index: 4; 
+                bottom: -140vh; /* Start from very bottom, mostly hidden */
+            }
+            .image-wrapper:nth-child(2) { 
+                z-index: 3; 
+                bottom: -80vh; /* 75% of 25vh up from previous */
+            }
+            .image-wrapper:nth-child(3) { 
+                z-index: 2; 
+                bottom: -20vh; /* 75% of 25vh up from previous */
+            }
+            .image-wrapper:nth-child(4) { 
+                z-index: 1; 
+                bottom: 40vh; /* 75% of 25vh up from previous */
+            }
+            
+            .curved-image {
+                border-radius: 50px 50px 0 0; /* Rounded top corners for vertical stack */
+            }
+            
+            /* Hover effect - move up instead of left */
+            .image-wrapper:hover {
+                transform: translateY(-5vh);
+            }
+            
+            .icon-overlay {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+            
+            .icon-overlay img {
+                width: 80px;
+                filter: drop-shadow(10px 20px 4px rgba(0, 0, 0, 0.4));
+            }
+            
+            .icon-overlay img:hover {
+                transform: scale(1.3);
+            }
+            
+            .variable {
+                font-size: 0.8em;
+                margin-top: 10px;
+            }
+            
+            .footer {
+                bottom: 5px;
+                right: 10px;
+                font-size: 12px;
+            }
+        }
+        
+        /* Extra small devices */
+      
+        
+        body.font-animation {
+            font-family: 'Inconsolata', monospace;
+            background-color: black;
+            color: black;
+            font-size: 8em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        main {
+            white-space: nowrap;
+            width: 80vw;
+            margin: auto;
+        }
+        .static {
+            font-size: 50px;
+            font-variation-settings: "wght" 900, "wdth" 200;
+        }
+        .variable {
+            display: flex;
+            justify-content: center;
+            font-variation-settings: "wght" 275, "wdth" 50;
+            text-align: center;
+            animation: swapthings 3s infinite both cubic-bezier(0.17, 0.04, 0.04, 0.99);
+        }
+        .work {
+            animation: swapthings2 3s infinite both cubic-bezier(0.17, 0.04, 0.04, 0.99);
+        }
+        @keyframes swapthings {
+            0% { font-variation-settings: "wght" 275, "wdth" 50; }
+            50% { font-variation-settings: "wght" 900, "wdth" 200; }
+            100% { font-variation-settings: "wght" 275, "wdth" 50; }
+        }
+        @keyframes swapthings2 {
+            0% { font-variation-settings: "wght" 900, "wdth" 200; }
+            50% { font-variation-settings: "wght" 275, "wdth" 50; }
+            100% { font-variation-settings: "wght" 900, "wdth" 200; }
+        }
+
+        /* NEW CSS for custom dropdown menu styling */
+        .menu {
+            background-image: linear-gradient(to bottom, #ed6ea0 0%, #ec8c69 100%);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        .menu ol {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .menu > ol {
+            display: flex;
+            flex-direction: column;
+        }
+        .menu > ol > li {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .menu > ol > li:last-child {
+            border-bottom: none;
+        }
+        .menu a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 300;
+            display: block;
+            padding: 1rem 0.5rem;
+            font-size: 1.2rem;
+            position: relative;
+        }
+        .menu a:focus {
+            outline: none;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        .menu > ol > li > ol.sub-menu {
+            background: rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 0.1rem 0.5rem rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 300ms ease-in-out;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .menu > ol > li > ol.sub-menu::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sub-menu a {
+            font-size: 1rem;
+            padding: 0.8rem 0.5rem;
+        }
+        .sub-menu a:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* UPDATED: Parent link styling to show selected values */
+        .menu > ol > li > a:not(:last-child):after {
+            content: '▼';
+            font-size: 0.7rem;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 1.5rem;
+            transition: transform 250ms ease;
+        }
+        .menu > ol > li.active > ol.sub-menu {
+            max-height: 20rem;
+        }
+        .menu > ol > li.active > a:not(:last-child):after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+        
+        /* NEW: Styling for selected value display in parent menu */
+        .menu > ol > li > a .selected-value {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #ffeb3b;
+            margin-top: 0.2rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .menu > ol > li > a.has-selection {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #ffeb3b;
+        }
+        
+        .menu-subitem a.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        /* NEW CSS for custom video player overlay */
+        .video-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+        }
+
+        .video-player-modal {
+            position: relative;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .video-player-modal iframe,
+        .video-player-modal video {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            width: 640px;
+            height: 360px;
+        }
+        @media (max-width: 768px) {
+            .video-player-modal iframe,
+            .video-player-modal video {
+                width: 100%;
+                height: calc(100vw * 9 / 16);
+            }
+        }
+
+        .video-player-modal .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            z-index: 10000;
+        }
+        .video-player-modal h4 {
+            color: white;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+        /* Specific styles for displaying PDF/images in Bootstrap modals */
+        .modal-body .showflip,
+        .modal-body .showpdf {
+            width: 100%;
+            height: 70vh; /* Adjust height as needed */
+            overflow: auto;
+            border: 1px solid #ccc;
+            background-color: #eee;
+            margin-top: 20px; /* Added spacing from dropdowns */
+        }
+
+        .modal-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .no-media-message {
+            color: red !important;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .modal-body .message-container { /* Style for message within modals */
+            padding: 20px;
+            text-align: center;
+            color: #333; /* Darker text for messages in light modal body */
+        }
+        .modal-body .message-container p {
+            margin-bottom: 0;
+            color: inherit;
+        }
+        .modal-body .modal-loader {
+            display: none; /* Hidden by default */
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="waviy">
+    <span style="--i:1">M</span>
+    <span style="--i:2">O</span>
+    <span style="--i:3">D</span>
+    <span style="--i:4">A</span>
+    <span style="--i:5">K</span>
+</div>
+
+<div class='light x1'></div>
+<div class='light x2'></div>
+<div class='light x3'></div>
+<div class='light x4'></div>
+<div class='light x5'></div>
+<div class='light x6'></div>
+<div class='light x7'></div>
+<div class='light x8'></div>
+<div class='light x9'></div>
+
+<div class="main-content">
+    <div class="image-container">
+
+        <div class="image-wrapper">
+            <img src="https://res.cloudinary.com/dltrdbfbf/image/upload/v1755758879/01a_xdur14.png" alt="Image 1" class="curved-image">
+            <div class="icon-overlay">
+                <!-- Trigger for custom dropdown for Flipbook -->
+                <a href="#" class="media-trigger" data-type="flipbook" data-placeholder="#flipbookDropdownPlaceholder">
+                    <img id="flipbookIcon" src="https://via.placeholder.com/80x80/ff6b35/ffffff?text=FB" alt="Flipbook">
+                </a>
+                <div id="flipbookDropdownPlaceholder"></div>
+                <div class="variable">Flip <span class="work">Books</span></div>
+            </div>
+        </div>
+
+        <div class="image-wrapper">
+            <img src="https://res.cloudinary.com/dltrdbfbf/image/upload/v1755758879/04a_tv7nmx.png" alt="Image 2" class="curved-image">
+            <div class="icon-overlay">
+                <!-- Trigger for custom dropdown for Video -->
+                <a href="#" class="media-trigger" data-type="video" data-placeholder="#videoDropdownPlaceholder">
+                    <img id="videoIcon" src="https://via.placeholder.com/80x80/4ecdc4/ffffff?text=VID" alt="Video Animations" title="Click to open video selector">
+                </a>
+                <div id="videoDropdownPlaceholder"></div>
+                <div class="variable">Video <span class="work">Animations</span></div>
+            </div>
+        </div>
+
+        <div class="image-wrapper">
+            <img src="https://res.cloudinary.com/dltrdbfbf/image/upload/v1755758879/03a_p7lavp.png" alt="Image 3" class="curved-image">
+            <div class="icon-overlay">
+                <!-- Trigger for custom dropdown for Answer Key -->
+                <a href="#" class="media-trigger" data-type="answer" data-placeholder="#answerDropdownPlaceholder">
+                    <img id="answerIcon" src="https://via.placeholder.com/80x80/45b7d1/ffffff?text=ANS" alt="Answer Keys">
+                </a>
+                <div id="answerDropdownPlaceholder"></div>
+                <div class="variable">ANSWER <span class="work">KEY</span></div>
+            </div>
+        </div>
+
+        <div class="image-wrapper">
+            <img src="https://res.cloudinary.com/dltrdbfbf/image/upload/v1755758879/02a_acjyle.png" alt="Image 4" class="curved-image">
+            <div class="icon-overlay">
+                <a href="http://13.201.45.252:3000/">
+                    <img src="https://via.placeholder.com/80x80/96ceb4/ffffff?text=EXAM" alt="Exam Generator">
+                </a>
+                <div class="variable">Exam <span class="work">Generator</span></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="footer">
+    © 2024 MODAK. All rights reserved.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- Universal Dropdown Menu Template (hidden, will be cloned) -->
+<div id="universalDropdownMenuTemplate" class="menu" style="display: none;">
+    <ol>
+        <li class="menu-item">
+            <a href="#0" class="parent-link">
+                <span class="menu-title">Select Class</span>
+                <span class="selected-value" style="display: none;"></span>
+            </a>
+            <ol class="sub-menu" id="menu_class_list_clone">
+                <li class="menu-subitem"><a href="#0" data-id="1">Class 1</a></li>
+                <li class="menu-subitem"><a href="#0" data-id="2">Class 2</a></li>
+                <li class="menu-subitem"><a href="#0" data-id="3">Class 3</a></li>
+            </ol>
+        </li>
+        <li class="menu-item">
+            <a href="#0" class="parent-link">
+                <span class="menu-title">Select Subject</span>
+                <span class="selected-value" style="display: none;"></span>
+            </a>
+            <ol class="sub-menu" id="menu_subject_list_clone">
+                <li class="menu-subitem"><a href="#0">Select Class First</a></li>
+            </ol>
+        </li>
+        <li class="menu-item">
+            <a href="#0" class="parent-link">
+                <span class="menu-title">Select Chapter</span>
+                <span class="selected-value" style="display: none;"></span>
+            </a>
+            <ol class="sub-menu" id="menu_chapter_list_clone">
+                <li class="menu-subitem"><a href="#0">Select Subject First</a></li>
+            </ol>
+        </li>
+        <li class="menu-item lecture-type-menu-item">
+            <a href="#0" class="parent-link">
+                <span class="menu-title">Lecture Type</span>
+                <span class="selected-value" style="display: none;"></span>
+            </a>
+            <ol class="sub-menu" id="menu_lecture_list_clone">
+                <li class="menu-subitem"><a href="#0" data-id="1">Lecture</a></li>
+                <li class="menu-subitem"><a href="#0" data-id="2">Video Animation</a></li>
+            </ol>
+        </li>
+    </ol>
+</div>
+
+<!-- Custom Video Player Modal -->
+<div class="video-backdrop">
+    <div class="video-player-modal">
+        <button class="close-btn">×</button>
+        <div id="videoContentArea"></div>
+    </div>
+</div>
+
+<!-- Flipbook Modal -->
+<div class="modal fade" id="flipModal" tabindex="-1" role="dialog" aria-labelledby="flipModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="flipModalLabel">Flipbooks</h5>
+                <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-loader text-center">Loading...</div>
+                <div class="showflip">
+                    <div class="message-container">
+                        <p>Please make a selection to view the flipbook.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Answer Key Modal -->
+<div class="modal fade" id="answerModal" tabindex="-1" role="dialog" aria-labelledby="answerModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="answerModalLabel">Answer Keys</h5>
+                <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-loader text-center">Loading...</div>
+                <div class="showpdf">
+                    <div class="message-container">
+                        <p>Please make a selection to view the answer key.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    // Global state to track which dropdown is currently active
+    let activeDropdownState = {
+        type: null, // 'video', 'flipbook', 'answer'
+        placeholder: null, // jQuery object of the div holding the active dropdown
+        selectedValues: {
+            class_id: null,
+            subject_id: null,
+            chapter_id: null,
+            lecture_id: null // Only relevant for 'video'
+        },
+        selectedTexts: { // Store selected text values for display
+            class_name: null,
+            subject_name: null,
+            chapter_name: null,
+            lecture_name: null
+        }
+    };
+
+    // --- Master Trigger for All Media Icons ---
+    $('.media-trigger').on('click', function (e) {
+        e.preventDefault();
+
+        const triggerType = $(this).data('type');
+        const placeholderSelector = $(this).data('placeholder');
+        const $placeholder = $(placeholderSelector);
+        const $iconContainer = $(this);
+
+        // If clicking the currently active icon, toggle it off
+        if (activeDropdownState.type === triggerType && $placeholder.is(':visible')) {
+            resetMediaSelectionArea();
+            return;
+        }
+
+        // Reset any previously active dropdown area
+        resetMediaSelectionArea();
+
+        // Set the new active state
+        activeDropdownState.type = triggerType;
+        activeDropdownState.placeholder = $placeholder;
+        // Reset selections for the new active dropdown
+        activeDropdownState.selectedValues = {
+            class_id: null,
+            subject_id: null,
+            chapter_id: null,
+            lecture_id: null
+        };
+        activeDropdownState.selectedTexts = {
+            class_name: null,
+            subject_name: null,
+            chapter_name: null,
+            lecture_name: null
+        };
+
+        // Hide the original icon image, but keep its parent (the <a> tag) for positioning
+        $iconContainer.find('img').hide();
+
+        // Clone the universal dropdown template
+        const $dropdownClone = $('#universalDropdownMenuTemplate').clone();
+        $dropdownClone.removeAttr('id').attr('id', 'activeMediaDropdown').show();
+
+        // Show/hide 'Lecture Type' based on media type
+        if (activeDropdownState.type === 'video') {
+            $dropdownClone.find('.lecture-type-menu-item').show();
+        } else {
+            $dropdownClone.find('.lecture-type-menu-item').hide();
+        }
+
+        activeDropdownState.placeholder.html($dropdownClone);
+        initializeUniversalDropdown($dropdownClone, activeDropdownState.selectedValues, activeDropdownState.type);
+    });
+
+    // --- Function to Reset Any Active Media Selection UI ---
+    function resetMediaSelectionArea() {
+        if (activeDropdownState.placeholder) {
+            activeDropdownState.placeholder.empty(); // Clear the dropdown content
+        }
+        // Show all original icons
+        $('#flipbookIcon').show();
+        $('#videoIcon').show();
+        $('#answerIcon').show();
+
+        // Hide any open modals and clear their content if applicable
+        $('.video-backdrop').fadeOut(function() { $('#videoContentArea').empty(); });
+        $('#flipModal').modal('hide');
+        $('#answerModal').modal('hide');
+        $('#flipModal .showflip').html('<div class="message-container"><p>Please make a selection to view the flipbook.</p></div>');
+        $('#answerModal .showpdf').html('<div class="message-container"><p>Please make a selection to view the answer key.</p></div>');
+
+        // Reset the global state
+        activeDropdownState = {
+            type: null,
+            placeholder: null,
+            selectedValues: {
+                class_id: null,
+                subject_id: null,
+                chapter_id: null,
+                lecture_id: null
+            },
+            selectedTexts: {
+                class_name: null,
+                subject_name: null,
+                chapter_name: null,
+                lecture_name: null
+            }
+        };
+    }
+
+    // Function to update parent menu display with selected values
+    function updateParentMenuDisplay($dropdownInstance, parentMenuId, selectedText) {
+        const $parentLink = $dropdownInstance.find(`#${parentMenuId}`).closest('.menu-item').find('.parent-link');
+        const $selectedValueSpan = $parentLink.find('.selected-value');
+        
+        if (selectedText) {
+            $selectedValueSpan.text(selectedText).show();
+            $parentLink.addClass('has-selection');
+        } else {
+            $selectedValueSpan.hide();
+            $parentLink.removeClass('has-selection');
+        }
+    }
+
+    // --- Universal Dropdown Initialization Function ---
+    function initializeUniversalDropdown($dropdownInstance, selections, mediaType) {
+        // Bind parent menu item clicks to open/close submenus
+        $dropdownInstance.find('.menu-item > .parent-link').off('click').on('click', function (e) {
+            e.preventDefault();
+            const $parentLi = $(this).closest('.menu-item');
+            $dropdownInstance.find('.menu-item').not($parentLi).removeClass('active'); // Close others
+            $parentLi.toggleClass('active'); // Toggle current
+        });
+
+        // Bind submenu item clicks
+        $dropdownInstance.find('.menu-subitem a').off('click').on('click', function (e) {
+            e.preventDefault();
+            const $this = $(this);
+            const selectedText = $this.text().trim();
+            const parentList = $this.closest('.sub-menu');
+            const parentId = parentList.attr('id');
+            parentList.find('a').removeClass('active');
+            $this.addClass('active');
+
+            // Update selections based on the clicked item
+            if (parentId === 'menu_class_list_clone') {
+                selections.class_id = $this.data('id');
+                activeDropdownState.selectedTexts.class_name = selectedText;
+                selections.subject_id = null;
+                selections.chapter_id = null;
+                selections.lecture_id = null;
+                activeDropdownState.selectedTexts.subject_name = null;
+                activeDropdownState.selectedTexts.chapter_name = null;
+                activeDropdownState.selectedTexts.lecture_name = null;
+                
+                updateParentMenuDisplay($dropdownInstance, 'menu_class_list_clone', selectedText);
+                updateParentMenuDisplay($dropdownInstance, 'menu_subject_list_clone', null);
+                updateParentMenuDisplay($dropdownInstance, 'menu_chapter_list_clone', null);
+                updateParentMenuDisplay($dropdownInstance, 'menu_lecture_list_clone', null);
+                
+                $dropdownInstance.find('#menu_subject_list_clone').html('<li class="menu-subitem"><a href="#0">Loading...</a></li>');
+                $dropdownInstance.find('#menu_chapter_list_clone').html('<li class="menu-subitem"><a href="#0">Select Subject First</a></li>');
+                $dropdownInstance.find('.menu-item').removeClass('active');
+            } else if (parentId === 'menu_subject_list_clone') {
+                selections.subject_id = $this.data('id');
+                activeDropdownState.selectedTexts.subject_name = selectedText;
+                selections.chapter_id = null;
+                selections.lecture_id = null;
+                activeDropdownState.selectedTexts.chapter_name = null;
+                activeDropdownState.selectedTexts.lecture_name = null;
+                
+                updateParentMenuDisplay($dropdownInstance, 'menu_subject_list_clone', selectedText);
+                updateParentMenuDisplay($dropdownInstance, 'menu_chapter_list_clone', null);
+                updateParentMenuDisplay($dropdownInstance, 'menu_lecture_list_clone', null);
+                
+                $dropdownInstance.find('#menu_chapter_list_clone').html('<li class="menu-subitem"><a href="#0">Loading...</a></li>');
+                $dropdownInstance.find('.menu-item').removeClass('active');
+            } else if (parentId === 'menu_chapter_list_clone') {
+                selections.chapter_id = $this.data('id');
+                activeDropdownState.selectedTexts.chapter_name = selectedText;
+                selections.lecture_id = null;
+                activeDropdownState.selectedTexts.lecture_name = null;
+                
+                updateParentMenuDisplay($dropdownInstance, 'menu_chapter_list_clone', selectedText);
+                updateParentMenuDisplay($dropdownInstance, 'menu_lecture_list_clone', null);
+                
+                $dropdownInstance.find('.menu-item').removeClass('active');
+            } else if (parentId === 'menu_lecture_list_clone') {
+                selections.lecture_id = $this.data('id');
+                activeDropdownState.selectedTexts.lecture_name = selectedText;
+                
+                updateParentMenuDisplay($dropdownInstance, 'menu_lecture_list_clone', selectedText);
+                
+                $dropdownInstance.find('.menu-item').removeClass('active');
+            }
+
+            // After selection, trigger dynamic loading for next level or content check
+            handleDynamicDropdownLoad(parentId, $dropdownInstance, selections, mediaType);
+            checkAndLoadMediaContent(mediaType, selections, $dropdownInstance);
+        });
+
+        // Initial dynamic load if selections are already present
+        if (selections.class_id && !selections.subject_id) {
+             handleDynamicDropdownLoad('menu_class_list_clone', $dropdownInstance, selections, mediaType);
+        }
+        if (selections.subject_id && !selections.chapter_id) {
+             handleDynamicDropdownLoad('menu_subject_list_clone', $dropdownInstance, selections, mediaType);
+        }
+    }
+
+    // --- Dynamic Dropdown Population (Mock data for demo) ---
+    function handleDynamicDropdownLoad(menuId, $dropdownInstance, selections, mediaType) {
+        if (menuId === 'menu_class_list_clone') {
+            const classId = selections.class_id;
+            if (!classId) return;
+            
+            // Mock subjects data
+            setTimeout(() => {
+                let html = '<li class="menu-subitem"><a href="#0">Select subject</a></li>';
+                html += '<li class="menu-subitem"><a href="#0" data-id="1">Mathematics</a></li>';
+                html += '<li class="menu-subitem"><a href="#0" data-id="2">Science</a></li>';
+                html += '<li class="menu-subitem"><a href="#0" data-id="3">English</a></li>';
+                $dropdownInstance.find('#menu_subject_list_clone').html(html);
+                initializeUniversalDropdown($dropdownInstance, selections, mediaType);
+            }, 500);
+        }
+        if (menuId === 'menu_subject_list_clone') {
+            const subjectId = selections.subject_id;
+            if (!subjectId) return;
+            
+            // Mock chapters data
+            setTimeout(() => {
+                let html = '<li class="menu-subitem"><a href="#0">Select chapter</a></li>';
+                html += '<li class="menu-subitem"><a href="#0" data-id="1">Chapter 1</a></li>';
+                html += '<li class="menu-subitem"><a href="#0" data-id="2">Chapter 2</a></li>';
+                html += '<li class="menu-subitem"><a href="#0" data-id="3">Chapter 3</a></li>';
+                $dropdownInstance.find('#menu_chapter_list_clone').html(html);
+                initializeUniversalDropdown($dropdownInstance, selections, mediaType);
+            }, 500);
+        }
+    }
+
+    // --- Check and Load Media Content (Mock functionality for demo) ---
+    function checkAndLoadMediaContent(type, selections, $dropdownInstance) {
+        const { class_id, subject_id, chapter_id, lecture_id } = selections;
+
+        // Clear any previous messages in the dropdown itself
+        $dropdownInstance.find('.no-media-message').remove();
+
+        let shouldLoad = false;
+        let modalElement = null;
+
+        if (type === 'video') {
+            if (class_id && subject_id && chapter_id && lecture_id) {
+                shouldLoad = true;
+                modalElement = $('.video-backdrop');
+            }
+        } else if (type === 'flipbook') {
+            if (class_id && subject_id && chapter_id) {
+                shouldLoad = true;
+                modalElement = $('#flipModal');
+            }
+        } else if (type === 'answer') {
+            if (class_id && subject_id && chapter_id) {
+                shouldLoad = true;
+                modalElement = $('#answerModal');
+            }
+        }
+
+        if (shouldLoad) {
+            // Mock content loading
+            setTimeout(() => {
+                if (type === 'video') {
+                    $('#videoContentArea').html(`
+                        <h4>Sample Video Content</h4>
+                        <div style="width: 560px; height: 315px; background: #333; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            Video Player Placeholder<br>
+                            Class: ${activeDropdownState.selectedTexts.class_name}<br>
+                            Subject: ${activeDropdownState.selectedTexts.subject_name}<br>
+                            Chapter: ${activeDropdownState.selectedTexts.chapter_name}<br>
+                            Type: ${activeDropdownState.selectedTexts.lecture_name}
+                        </div>
+                    `);
+                    modalElement.fadeIn();
+
+                    $('.video-backdrop .close-btn, .video-backdrop').off('click').on('click', function(e) {
+                        if ($(e.target).hasClass('close-btn') || $(e.target).hasClass('video-backdrop')) {
+                            modalElement.fadeOut(function() {
+                                $('#videoContentArea').empty();
+                            });
+                            resetMediaSelectionArea();
+                        }
+                    });
+                } else if (type === 'flipbook') {
+                    $('#flipModal .showflip').html(`
+                        <div style="padding: 20px; text-align: center;">
+                            <h6>Flipbook Content</h6>
+                            <div style="width: 100%; height: 400px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc;">
+                                Flipbook Placeholder<br>
+                                Class: ${activeDropdownState.selectedTexts.class_name}<br>
+                                Subject: ${activeDropdownState.selectedTexts.subject_name}<br>
+                                Chapter: ${activeDropdownState.selectedTexts.chapter_name}
+                            </div>
+                        </div>
+                    `);
+                    modalElement.modal('show');
+
+                    modalElement.off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                        resetMediaSelectionArea();
+                    });
+                } else if (type === 'answer') {
+                    $('#answerModal .showpdf').html(`
+                        <div style="padding: 20px; text-align: center;">
+                            <h6>Answer Key Content</h6>
+                            <div style="width: 100%; height: 400px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc;">
+                                Answer Key Placeholder<br>
+                                Class: ${activeDropdownState.selectedTexts.class_name}<br>
+                                Subject: ${activeDropdownState.selectedTexts.subject_name}<br>
+                                Chapter: ${activeDropdownState.selectedTexts.chapter_name}
+                            </div>
+                        </div>
+                    `);
+                    modalElement.modal('show');
+
+                    modalElement.off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                        resetMediaSelectionArea();
+                    });
+                }
+            }, 1000);
+        }
+    }
+});
+</script>
+</body>
+</html>
